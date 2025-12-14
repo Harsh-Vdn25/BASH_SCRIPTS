@@ -49,16 +49,16 @@ function PlayGame(){
 		fi
 		if [[ $USER_A -eq 30 || $USER_B -eq 30 ]]; then
 			GAME_FINISHED=1
-			if [ $USER_A > $USER_B ];then
+			if [ $USER_A -gt $USER_B ];then
 				WINNER="USER_A"
 			else
 				WINNER="USER_B"
 			fi
-			echo "$WINNER won the game"
+			echo -e "\n🎉 $WINNER won the game 🎉"
 		else
-			echo -e "  =========SCORES========="
-			echo -e "\n 		$USER_A | $USER_B "
-			echo -e "\n  ========================\n"
+      		echo -e "\n========= SCORES ========="
+      		echo -e "   USER A: $USER_A | USER B: $USER_B"
+      		echo -e "==========================\n"
 		fi
 		done
 }
