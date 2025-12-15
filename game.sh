@@ -7,6 +7,8 @@ USER_B=0
 CHANCE=0
 GAME_FINISHED=0
 WINNER=""
+OBSTACLES=(5 10 15 20 25)
+FINE=(2 5 7 10 12)
 function rollTheDie(){
 	VALUE=$(shuf -i 1-100 -n 1)
 	VALUE=$(echo "scale=2; $VALUE / 100" | bc)
@@ -14,6 +16,28 @@ function rollTheDie(){
 	RESULT=$(awk '{print($1 == int($1)?int($1):int($1)+1)}' <<<"$DECIMAL")
 	echo $RESULT
 }
+
+function obstacleHit(){
+	USER_PLACE=$(($1 + $2))
+	FINED=0
+	i=0
+	for VAL in "${OBSTACLES[@]}";do
+		i=$((i+1))
+		if [ $USER_PLACE -eq $VAL ];then 
+			USER_PLACE=$((USER_PLACE-"${FINE[$i]}"))
+			echo -e "\n the value of userplace is this $USER_PLACE">&2
+			echo -e "You've hit the obstacle\n">&2
+			FINED=1
+		break
+		fi
+	done
+	if [ $FINED -eq 1 ];then
+		echo "$USER_PLACE"
+	else
+		echo "$USER_PLACE"
+	fi
+}
+
 function PlayGame(){
 	while [ $GAME_FINISHED -eq 0 ]; do 
 		if [ $CHANCE -eq 0 ]; then
@@ -25,7 +49,7 @@ function PlayGame(){
 				if [ $(($DIE + $USER_A)) -gt $RACE_LENGTH ];then
 					echo -e "\nYou cant advance ,you need exact $(($RACE_LENGTH - $USER_A)) to advance"
 				else
-					USER_A=$((USER_A + DIE))
+					USER_A=$(obstacleHit "$USER_A" "$DIE")
 				fi
 				CHANCE=1
 			else
@@ -40,7 +64,7 @@ function PlayGame(){
 				if [ $(($DIE + $USER_B)) -gt $RACE_LENGTH ];then
 					echo -e "\nYou cant advance ,you need exact $(($RACE_LENGTH - $USER_B)) to advance"
 				else
-					USER_B=$((USER_B + DIE))
+					USER_B=$(obstacleHit "$USER_B" "$DIE")
 				fi
 				CHANCE=0
 			else
@@ -63,4 +87,3 @@ function PlayGame(){
 		done
 }
 PlayGame
-
