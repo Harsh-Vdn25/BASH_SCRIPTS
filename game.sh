@@ -13,8 +13,9 @@ function rollTheDie(){
 	VALUE=$(shuf -i 1-100 -n 1)
 	VALUE=$(echo "scale=2; $VALUE / 100" | bc)
 	DECIMAL=$(echo " scale=2; $VALUE * 6" |bc)
-	RESULT=$(awk '{print($1 == int($1)?int($1):int($1)+1)}' <<<"$DECIMAL")
-	echo $RESULT
+	RE=$(awk '{print($1 == int($1)?int($1):int($1)+1)}' <<<"$DECIMAL")
+	echo -e "|$RE|\n">&2
+	echo $RE
 }
 
 function obstacleHit(){
@@ -24,7 +25,8 @@ function obstacleHit(){
 	for VAL in "${OBSTACLES[@]}";do
 		i=$((i+1))
 		if [ $USER_PLACE -eq $VAL ];then 
-			USER_PLACE=$((USER_PLACE-"${FINE[$i]}"))
+			RES=$((USER_PLACE-"${FINE[$i]}"))
+			USER_PLACE=$(awk '{print($1 > 0)?$1:0}' <<< "$RES")
 			echo -e "\n the value of userplace is this $USER_PLACE">&2
 			echo -e "You've hit the obstacle\n">&2
 			FINED=1
@@ -38,6 +40,20 @@ function obstacleHit(){
 	fi
 }
 
+function Advance(){
+	POS=$1
+	RACER=$2
+	p=0
+	echo "$RACER"
+	while [ $p -lt $POS ];do 
+		echo -n "= "
+		p=$(($p+1))
+		if [ $p -eq $POS ];then
+			echo -n "🚓"
+		fi
+	done
+	echo -e "\n"
+}
 function PlayGame(){
 	while [ $GAME_FINISHED -eq 0 ]; do 
 		if [ $CHANCE -eq 0 ]; then
@@ -80,9 +96,10 @@ function PlayGame(){
 			fi
 			echo -e "\n🎉 $WINNER won the game 🎉"
 		else
-      		echo -e "\n========= SCORES ========="
-      		echo -e "   USER A: $USER_A | USER B: $USER_B"
-      		echo -e "==========================\n"
+      		echo -e "\n========= RACE ========="
+			Advance $USER_A "A"
+			Advance $USER_B "B"
+			echo -e "\n"
 		fi
 		done
 }
